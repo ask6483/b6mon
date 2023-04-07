@@ -4,12 +4,14 @@ import argparse
 import os.path
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import statistics as stat
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('file', type=str, nargs='+', help='Data log file to plot')
     parser.add_argument('-t', '--title', type=str, help='Title for the plot')
+    parser.add_argument('-s', '--show', action="store_true", help='Show plot intead of saving image')
 
     return parser.parse_args()
 
@@ -36,15 +38,15 @@ def parse(files):
 
     return plot
 
-def plot(title, data):
-    fig, ax = plt.subplots()
+def plot(title, data, show):
+    fig, ax = plt.subplots(figsize=(15, 8))
     ax.set_title(title)
     ax.set_xlabel('Time [m]')
     ax.set_ylabel('Voltage [mV]')
     ax.yaxis.set_major_locator(ticker.MultipleLocator(200))
     ax.yaxis.set_minor_locator(ticker.MultipleLocator(50))
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(60))
-    ax.xaxis.set_minor_locator(ticker.MultipleLocator(10))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(30))
+    ax.xaxis.set_minor_locator(ticker.MultipleLocator(5))
     ax.grid(color='black', linestyle='--', linewidth=0.2)
 
     for plot in data:
@@ -54,15 +56,20 @@ def plot(title, data):
         y = data[plot]['V']
         y = [v * 1000 for v in y]
 
-        ax.plot(x, y, label=plot)
+        label = plot + ' ' + str("%.2f" % stat.mean(data[plot]['A'])) + 'A'
+        ax.plot(x, y, label=label)
 
     ax.legend()
-    plt.show()
+
+    if show:
+        plt.show()
+    else:
+        plt.savefig(title + '.svg')
 
 if __name__ == "__main__":
     args = parse_args()
     data = parse(args.file)
     if data:
-        plot(args.title, data)
+        plot(args.title, data, args.show)
     else:
         print('No data to plot!')
