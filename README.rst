@@ -52,7 +52,7 @@ Run gnuplot (sample file included)::
 
 Example:
 
-.. image:: cellplot.svg
+.. image:: plot/gnuplot/cellplot.svg
 
 License
 =======
